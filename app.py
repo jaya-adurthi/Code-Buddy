@@ -7,12 +7,10 @@
 
 import os
 import streamlit as st
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+from mistralai import Mistral
 
 api_key = os.environ.get("MISTRAL_API_KEY")
-client = MistralClient(api_key=api_key)
-
+client = Mistral(api_key=api_key)
 st.set_page_config(page_title="Code Buddy", page_icon="💻", layout="wide")
 st.title("💻 Code Buddy")
 st.caption("Your AI pair programmer — write, explain, debug, and optimize code")
@@ -80,15 +78,15 @@ if prompt:
         st.markdown(full_prompt)
 
     system = MODES[mode] + f" The student's preferred language is {language}."
-    history = [ChatMessage(role="system", content=system)]
-    for m in st.session_state.messages[-10:]:
-        history.append(ChatMessage(role=m["role"], content=m["content"]))
+   history = [{"role": "system", "content": system}]
+for m in st.session_state.messages[-10:]:
+    history.append({"role": m["role"], "content": m["content"]})
 
     with st.chat_message("assistant"):
         placeholder = st.empty()
         answer = ""
         try:
-            stream = client.chat_stream(
+            stream = client.chat.stream(
                 model=model,
                 messages=history,
                 temperature=0.3,
