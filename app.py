@@ -88,17 +88,17 @@ for m in st.session_state.messages[-10:]:
         try:
             stream = client.chat.stream(
                 model=model,
-                messages=history,
-                temperature=0.3,
+                messages=[{"role": m.role,"content": m.content} for m in history],
+            
             )
-            for chunk in stream:
-                token = chunk.choices[0].delta.content
-                if token:
-                    answer += token
-                    placeholder.markdown(answer + "▌")
-            placeholder.markdown(answer)
-        except Exception as e:
-            answer = f"❌ Error: {e}"
-            placeholder.error(answer)
+             for chunk in stream:
+    if chunk.data.choices[0].delta.content:
+        token = chunk.data.choices[0].delta.content
+        answer += token
+        placeholder.markdown(answer + "▌")
 
-    st.session_state.messages.append({"role": "assistant", "content": answer})
+placeholder.markdown(answer)
+
+except Exception as e:
+    answer = f"❌ Error: {e}"
+    placeholder.error(answer)
