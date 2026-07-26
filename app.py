@@ -91,7 +91,7 @@ for m in st.session_state.messages[-10:]:
                 messages=[{"role": m.role,"content": m.content} for m in history],
             
             )
-             for chunk in stream:
+for chunk in stream:
     if chunk.data.choices[0].delta.content:
         token = chunk.data.choices[0].delta.content
         answer += token
