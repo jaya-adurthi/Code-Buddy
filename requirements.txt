@@ -1,2 +1,2 @@
-streamlit
-mistralai
+streamlit==1.37.1
+mistralai==0.4.2
