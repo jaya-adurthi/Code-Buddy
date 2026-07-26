@@ -1,3 +1,2 @@
 streamlit==1.37.1
 mistralai==0.4.2
-orjson==3.10.7
