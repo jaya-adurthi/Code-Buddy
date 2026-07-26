@@ -1,2 +1,2 @@
 streamlit
-mistralai>=1.0.0
+mistralai>=1.9.0
