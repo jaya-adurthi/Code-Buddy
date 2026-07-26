@@ -1,9 +1,14 @@
 import os
 import streamlit as st
 from mistralai import Mistral
+from mistralai.exceptions import MistralException
 
 # ---------------- API ----------------
 api_key = os.getenv("MISTRAL_API_KEY")
+if not api_key:
+    st.error("MISTRAL_API_KEY environment variable not found. Please set it and restart the app.")
+    st.stop()
+
 client = Mistral(api_key=api_key)
 
 st.set_page_config(
@@ -43,6 +48,9 @@ with st.sidebar:
         "Model",
         ["mistral-small-latest", "mistral-large-latest"]
     )
+    if st.button("Clear Chat"):
+        st.session_state.messages = []
+        st.rerun()
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -61,7 +69,7 @@ if prompt:
     full_prompt = prompt
 
     if user_code.strip():
-        full_prompt += f"\n\n```{language.lower()}\n{user_code}\n```"
+        full_prompt += f"\n\n```{language}\n{user_code}\n```"  # Use original language name
 
     st.session_state.messages.append(
         {"role": "user", "content": full_prompt}
@@ -73,8 +81,7 @@ if prompt:
     messages = [
         {
             "role": "system",
-            "content": MODES[mode]
-            + f" The preferred programming language is {language}."
+            "content": MODES[mode] + f" The preferred programming language is {language}."
         }
     ]
 
@@ -91,18 +98,20 @@ if prompt:
             )
 
             for chunk in stream:
-                if (
-                    chunk.data.choices
-                    and chunk.data.choices[0].delta.content
-                ):
-                    token = chunk.data.choices[0].delta.content
-                    answer += token
-                    placeholder.markdown(answer + "▌")
+                if hasattr(chunk, 'data') and hasattr(chunk.data, 'choices') and chunk.data.choices:
+                    delta = chunk.data.choices[0].delta
+                    if hasattr(delta, 'content') and delta.content:
+                        token = delta.content
+                        answer += token
+                        placeholder.markdown(answer + "▌")
 
-            placeholder.markdown(answer)
+            placeholder.markdown(answer)  # Remove cursor after streaming
 
+        except MistralException as e:
+            answer = f"❌ Mistral API Error: {e}"
+            placeholder.error(answer)
         except Exception as e:
-            answer = f"❌ Error: {e}"
+            answer = f"❌ Unexpected Error: {e}"
             placeholder.error(answer)
 
     st.session_state.messages.append(
