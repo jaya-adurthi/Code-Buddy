@@ -78,7 +78,7 @@ if prompt:
         st.markdown(full_prompt)
 
     system = MODES[mode] + f" The student's preferred language is {language}."
-   history = [{"role": "system", "content": system}]
+    history = [{"role": "system", "content": system}]
 for m in st.session_state.messages[-10:]:
     history.append({"role": m["role"], "content": m["content"]})
 
