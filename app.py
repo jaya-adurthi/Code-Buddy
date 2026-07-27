@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from mistralai import Mistral
+from mistralai import MISTRAL_API_KEY
 from mistralai.exceptions import MistralException
 
 # ---------------- API ----------------
